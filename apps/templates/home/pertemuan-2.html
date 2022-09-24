@@ -1,0 +1,172 @@
+{% extends "layouts/base.html" %} {% load static %}
+
+{% block title %}
+Pertemuan 2 : Show RGB per Pixel
+{% endblock title %}
+
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container bg-white mt-3 py-3">
+  <h1 class="text-center m-0 py-3">Test and Analysis Image</h1>
+  <div class="m-3">
+    <div class="bg-dark p-3 mb-3">
+      <div class="row">
+        {% for item in data %}
+        <div class="col-md-4 mb-3 d-flex justify-content-center">
+          <div class="card" style="width: 18rem">
+            <img src="{% static 'images/' %}{{ item.nama_file }}" class="card-img-top" alt="fire" />
+            <div class="card-body">
+              <h5 class="card-title">{{ item.nama_file }}</h5>
+              <div class="d-flex">
+                <!-- Button trigger modal Analisis -->
+                <button type="button" class="btn btn-primary mx-3" data-bs-toggle="modal"
+                  data-bs-target="#analysis-{{ item.nama_file|cut:"." }}">
+                  Go Analysis
+                </button>
+                <!-- Button trigger modal Grayscale -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                  data-bs-target="#grayscale-{{ item.nama_file|cut:"." }}">
+                  Go Grayscale
+                </button>
+              </div>
+              <!-- Modal Analysis -->
+              <div class="modal fade" id="analysis-{{ item.nama_file|cut:"." }}" data-bs-backdrop="static"
+                data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-fullscreen">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">
+                        Analisis {{ item.nama_file }}
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body bg-dark">
+                      <div class="row h-100 mx-3">
+                        <div class="col-md-8 position-relative">
+                          <img src="{% static 'images/' %}{{ item.nama_file }}"
+                            class="img-fluid position-absolute top-50 start-50 translate-middle" style="max-width: 50%"
+                            alt="fire" />
+                        </div>
+                        <div class="col-md-4 bg-white">
+                          <div class="p-3">
+                            <div class="row">
+                              <div class="col">
+                                <h5>Details<br>(Reals)</h5>
+                                <ul>
+                                  <li>Nama File : {{item.nama_file}}</li>
+                                  <li>Panjang : {{item.rwidth}} px</li>
+                                  <li>Lebar : {{item.rheight}} px</li>
+                                </ul>
+                              </div>
+                              <div class="col">
+                                <h5>Details<br>(Compressed 5%)</h5>
+                                <ul>
+                                  <li>Nama File : {{item.nama_file}}</li>
+                                  <li>Panjang : {{item.width}} px</li>
+                                  <li>Lebar : {{item.height}} px</li>
+                                </ul>
+                              </div>
+                            </div>
+                            <div style="overflow-y: auto; height: 300px">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Red</th>
+                                    <th scope="col">Green</th>
+                                    <th scope="col">Blue</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="target-{{item.nama_file}}">
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                      </button>
+                      <button type="button" class="btn btn-primary">
+                        Understood
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Modal Grayscale -->
+              <div class="modal fade" id="grayscale-{{ item.nama_file|cut:"." }}" tabindex="-1"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-fullscreen">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Grayscale {{ item.nama_file }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="row">
+                        <div class="col-4">
+                          <p>Real</p>
+                          <img src="{% static 'images/' %}{{ item.nama_file }}" class="img-fluid" alt="fire" />
+                        </div>
+                        <div class="col-4">
+                          <p>Grayscale with OpenCV</p>
+                          <img src="{% static 'images/gray-opencv/' %}{{ item.nama_file }}" class="img-fluid"
+                            alt="fire gray error" />
+                        </div>
+                        <div class="col-4">
+                          <p>Grayscale without OpenCV</p>
+                          <img src="{% static 'images/gray-manual/' %}{{ item.nama_file }}" class="img-fluid"
+                            alt="fire" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          var tBody = document.getElementById("target-{{item.nama_file}}");
+          var data = "{{ item.res|safe }}";
+          tBody.innerHTML = data;
+        </script>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Tantangan
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Tantangan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
