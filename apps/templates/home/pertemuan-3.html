@@ -9,6 +9,35 @@ Pertemuan 3 : Invert and Crop Image
 
 {% block content %}
 <div class="container bg-white mt-3 py-3">
-  <h1 class="text-center m-0 py-3">Invert and Crop Image</h1>
+    <h1 class="text-center m-0 py-3">Invert and Crop Image</h1>
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Original Image</h5>
+                    <img src="{{ ASSETS_ROOT }}/images/MyPhoto.jpg" class="card-img-top"
+                        alt="Original Image">
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Crop Image</h5>
+                    <img src="{{ ASSETS_ROOT }}/images/crop/MyPhoto.jpg" class="card-img-top"
+                        alt="Inverted Image">
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Inverted Image</h5>
+                    <img src="{{ ASSETS_ROOT }}/images/invert/MyPhoto.jpg" class="card-img-top"
+                        alt="Inverted Image">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}

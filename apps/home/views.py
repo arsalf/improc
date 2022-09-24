@@ -60,9 +60,39 @@ def getData(file_template):
     # Return different data for each template names
     if file_template == 'pertemuan-2.html':
         data = getInfoImg(range(0, 3))
+    elif file_template == 'pertemuan-3.html':
+        data = getCropAndInvertImage()
     
     return data
 
+def getCropAndInvertImage():
+    status = getCropImage()
+    if status:
+        status = getInvertImage()
+
+    return status
+
+def getInvertImage():
+    path = str(Path(__file__).resolve().parent.parent)+'\\static\\assets\\images\\'
+    save_path_to = str(Path(__file__).resolve().parent.parent) + \
+        '\\static\\assets\\images\\invert\\'
+
+    img = cv2.imread(path+"MyPhoto.jpg", cv2.IMREAD_COLOR)
+    img_invert = cv2.bitwise_not(img)
+    status = cv2.imwrite(save_path_to+"MyPhoto.jpg", img_invert)
+
+    return status
+
+def getCropImage():
+    path = str(Path(__file__).resolve().parent.parent)+'\\static\\assets\\images\\'
+    save_path_to = str(Path(__file__).resolve().parent.parent) + \
+        '\\static\\assets\\images\\crop\\'
+
+    img = cv2.imread(path+"MyPhoto.jpg", cv2.IMREAD_COLOR)
+    img_crop = img[80:, 560:1200] # Cukup di slice aja    
+    status = cv2.imwrite(save_path_to+"MyPhoto.jpg", img_crop)
+
+    return status
 
 def getInfoImg(rData):
     data = []
