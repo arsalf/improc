@@ -17,6 +17,10 @@ import numpy as np
 from pathlib import Path
 from statistics import mean
 import matplotlib.image as mimg
+import pandas as pd
+from skimage import io
+from PIL import Image 
+import matplotlib.pylab as plt
 
 @login_required(login_url="/login/")
 def index(request):
@@ -54,6 +58,7 @@ def pages(request):
         html_template = loader.get_template('home/page-500.html')
         return HttpResponse(html_template.render(context, request))
 
+# Core data for each template
 def getData(file_template):
     data = []
 
@@ -62,8 +67,113 @@ def getData(file_template):
         data = getInfoImg(range(0, 3))
     elif file_template == 'pertemuan-3.html':
         data = getCropAndInvertImage()
+    elif file_template == 'pertemuan-4.html':
+        data = getImgFromUrl("https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png")    
     
     return data
+
+def getImgFromUrl(url):    
+    save_path_to = str(Path(__file__).resolve().parent.parent) + \
+        '\\static\\assets\\images\\merge\\'
+    image_0 = io.imread(url) # read image use skimage
+    image_2 = cv2.cvtColor(image_0, cv2.COLOR_BGR2RGB) #convert bgr to rgb
+    final_frame = cv2.hconcat((image_0, image_2)) # merge image
+    status = cv2.imwrite(save_path_to+"lena.jpg", final_frame)
+
+    # add brightness_add
+    image_1 = brightness_add(image_0)
+    save_path_to = str(Path(__file__).resolve().parent.parent) + \
+        '\\static\\assets\\images\\brightness\\'
+    image_1.save(save_path_to+"lena.jpg")    
+
+    # add brightness_addcv    
+    image_3 = brightness_addcv(image_2)
+    status = cv2.imwrite(save_path_to+"lenacv.jpg", image_3)
+
+    # add brightness_addcv
+    image_4 = brightness_add(image_2)    
+    image_4.save(save_path_to+"lenacvmanual.jpg")    
+
+    # add brightness_subtraction
+    image_5 = brightness_subtraction(image_2)
+    image_5 = Image.fromarray(image_5)
+    image_5.save(save_path_to+"lenasub.jpg")
+
+    # add brightness_subtractioncv
+    image_6 = brightness_subtractioncv(image_0)
+    status = cv2.imwrite(save_path_to+"lenasubcv.jpg", image_6)    
+
+    # add brightness_multiplication
+    image_7 = brightness_multiplication(image_0)
+    image_7.save(save_path_to+"lenamul.jpg")
+
+    return status
+
+def brightness_subtraction(image):
+    image = image.astype('uint16')
+    image = image-100
+    image = np.clip(image, 0, 255)
+    image = image.astype('uint8')
+    return image
+
+def brightness_subtractioncv(image):
+    new_image = cv2.subtract(image, 100)
+    new_image = np.clip(new_image, 0, 255)
+    return new_image
+
+def brightness_multiplication(image):
+    image = np.asarray(image).astype('uint16')
+    image = image*1.25
+    image = np.clip(image, 0, 255)
+    new_image = image.astype('uint8')
+    new_image = Image.fromarray(new_image)
+    return new_image
+
+def brightness_multiplicationcv(image):
+    new_image = cv2.multiply(image, 1.25)
+    new_image= np.clip(new_image, 0, 255)
+    return new_image
+
+def brightness_dividecv(image):
+    new_image = cv2.divide(image, 2)
+    new_image= np.clip(new_image, 0, 255)
+    return new_image
+
+def brightness_divide(image):
+    image = np.asarray(image).astype('uint16')
+    image = image/2
+    image = np.clip(image, 0, 255)
+    new_image = image.astype('uint8')
+    #new_image = Image.fromarray(new_image)
+    return new_image
+
+def bitwise_and(image):
+    bit_and = cv2.bitwise_and(image, image)
+    return bit_and
+
+def bitwise_or(image):
+    bit_or = cv2.bitwise_or(image, image)
+    return bit_or
+
+def bitwise_not(image):
+    bit_not = cv2.bitwise_not(image)
+    return bit_not
+
+def bitwise_xor(image):
+    bit_xor = cv2.bitwise_xor(image, image)
+    return bit_xor
+
+def brightness_add(image):
+    image = np.asarray(image).astype('uint16')
+    image = image+100
+    image = np.clip(image, 0, 255)
+    new_image = image.astype('uint8')
+    new_image = Image.fromarray(new_image)
+    return new_image
+
+def brightness_addcv(image):
+    new_image = cv2.add(image, 100)
+    return new_image
 
 def getCropAndInvertImage():
     status = getCropImage()

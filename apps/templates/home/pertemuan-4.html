@@ -1,0 +1,88 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Pertemuan 4 : Arithmetic Operation Images
+{% endblock title %}
+
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container bg-white mt-3 py-3">
+    <h1 class="text-center m-0 py-3">Arithmetic Operation Images</h1>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Original Image</h5>
+                </div>
+                <div class="card-body">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png"
+                        class="img-fluid" alt="Original Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Image_0 vs Image_2</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ ASSETS_ROOT }}/images/merge/lena.jpg" class="img-fluid" alt="Result Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Image_0 brightness_add manual</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ ASSETS_ROOT }}/images/brightness/lena.jpg" class="img-fluid" alt="Result Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Image_2 brightness_add open cv</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenacv.jpg" class="img-fluid" alt="Result Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Image_2 brightness_add manual</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenacvmanual.jpg" class="img-fluid"
+                        alt="Result Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Image_0 brightness_sub opencv</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenasubcv.jpg" class="img-fluid" alt="Result Image">
+                </div>
+            </div>
+        </div>        
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Image_0 brightness_mul manual</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenamul.jpg" class="img-fluid"
+                        alt="Result Image">
+                </div>
+            </div>
+    </div>
+</div>
+{% endblock content %}
