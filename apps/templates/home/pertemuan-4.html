@@ -1,88 +1,622 @@
 {% extends "layouts/base.html" %}
 
 {% block title %}
-Pertemuan 4 : Arithmetic Operation Images
+Pertemuan 4 : Basic Operation Images
 {% endblock title %}
 
 {% block stylesheets %}
+<style>
+    td {
+        word-wrap: break-word;
+        max-width: 50px;
+        white-space: normal !important;
+    }
+
+    .tableFixHead {
+        overflow: auto;
+        height: 100px;
+    }
+
+    .tableFixHead thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
 <div class="container bg-white mt-3 py-3">
-    <h1 class="text-center m-0 py-3">Arithmetic Operation Images</h1>
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
+    <h1 class="text-center m-0 py-3">Basic Operation Images</h1>
+
+    <!-- Center content -->
+    <div class="d-flex justify-content-center">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title">Original Image</h5>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Custom Parameter
+                    </button>
                 </div>
-                <div class="card-body">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png"
-                        class="img-fluid" alt="Original Image">
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Custom Parameter Operation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="" method="post" enctype="multipart/form-data">
+                                <div class="modal-body">
+                                    <div class="form-group mb-3">
+                                        <!-- Create css tokens-->
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <label>Upload Original Image</label>
+                                                <input type="file" name="image" class="form-control-file" id="image"
+                                                    accept="image/jpeg" required>
+                                            </div>
+                                            {% if data.is_upload %}
+                                            <div class="col-md-4">
+                                                <label>Current Image</label>
+                                                <input type="text" name="current_image" class="form-control"
+                                                    value="{{ data.image }}" readonly>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label for="addition">Addition</label>
+                                        <input type="number" name="addition" class="form-control" id="addition"
+                                            value="{% if data.is_upload %}{{ data.addition }}{% endif %}" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label for="substraction">Substraction</label>
+                                        <input type="number" name="substraction" class="form-control" id="substraction"
+                                            value="{% if data.is_upload %}{{ data.substraction }}{% endif %}" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label for="multiplication">Multiplication</label>
+                                        <input type="number" name="multiplication" class="form-control"
+                                            id="multiplication"
+                                            value="{% if data.is_upload %}{{ data.multiplication }}{% endif %}"
+                                            required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label for="division">Division</label>
+                                        <input type="number" name="division" class="form-control" id="division"
+                                            value="{% if data.is_upload %}{{ data.division }}{% endif %}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Do Operation!</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body d-flex justify-content-center">
+                <img src="{% if data.is_upload %}{{ ASSETS_ROOT }}/images/originals/{{ data.image }}{% else %}https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png{% endif %}"
+                    class="img-fluid" alt="Original Image" style="max-height: 350px;">
+            </div>
+            <div class="card-footer">
+
+                <label>Aritmathic Operation : </label>
+
+                <!-- Modal Add Button-->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal"
+                    data-bs-target="#modalAdd">Addition</button>
+
+                <!-- Modal fullscreen Add -->
+                <div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Addition Original Image By
+                                    {% if data.is_upload %}
+                                    {{ data.addition }} {% else %} 100 {% endif %}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">NumPy</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/add_np.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">OpenCv</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/add_cv.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table table-bordered">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">NumPy</th>
+                                                    <th scope="col">OpenCv</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.add_np }}</td>
+                                                    <td>{{ data.rgb.add_cv }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Substraction Button-->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal"
+                    data-bs-target="#modalSubstract">Substract</button>
+
+                <!-- Modal fullscreen Subtract -->
+                <div class="modal fade" id="modalSubstract" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Substraction Original Image By
+                                    {% if data.is_upload %}
+                                    {{ data.substraction }} {% else %} 100 {% endif %}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">NumPy</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/sub_np.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">OpenCv</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/sub_cv.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table table-bordered">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">NumPy</th>
+                                                    <th scope="col">OpenCv</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.sub_np }}</td>
+                                                    <td>{{ data.rgb.sub_cv }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Multiplication Button -->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal"
+                    data-bs-target="#modalMultiply">Multiply</button>
+
+                <!-- Modal fullscreen Multiply -->
+                <div class="modal fade" id="modalMultiply" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Multiplication Original Image By
+                                    {% if data.is_upload %}
+                                    {{ data.multiplication }} {% else %} 5 {% endif %}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">NumPy</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/mul_np.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">OpenCv</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/mul_cv.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table table-bordered">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">NumPy</th>
+                                                    <th scope="col">OpenCv</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.mul_np }}</td>
+                                                    <td>{{ data.rgb.mul_cv }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Division Button -->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal"
+                    data-bs-target="#modalDivide">Divide</button>
+
+                <!-- Modal fullscreen Divide -->
+                <div class="modal fade" id="modalDivide" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Division Original Image By
+                                    {% if data.is_upload %}
+                                    {{ data.division }} {% else %} 5 {% endif %}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">NumPy</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/div_np.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5 class="card-title">OpenCv</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <!-- Image add -->
+                                                        <img src="{{ ASSETS_ROOT }}/images/brightness/div_cv.jpg"
+                                                            class="img-fluid" alt="Operation Add Manual"
+                                                            style="max-height: 400px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">NumPy</th>
+                                                    <th scope="col">OpenCv</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.div_np }}</td>
+                                                    <td>{{ data.rgb.div_cv }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <label>Logic Operation : </label>
+
+                <!-- Modal And Button -->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal" data-bs-target="#modalAnd">And</button>
+
+                <!-- Modal fullscreen And -->
+                <div class="modal fade" id="modalAnd" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">And Original Image</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5 class="card-title">OpenCv</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- Image add -->
+                                                <img src="{{ ASSETS_ROOT }}/images/brightness/and.jpg" class="img-fluid"
+                                                    alt="Operation Add Manual" style="max-height: 400px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div  class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">Random</th>
+                                                    <th scope="col">Result</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.and_rand }}</td>
+                                                    <td>{{ data.rgb.and }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Or Button -->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal" data-bs-target="#modalOr">Or</button>
+
+                <!-- Modal fullscreen Or -->
+                <div class="modal fade" id="modalOr" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Or Original Image</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5 class="card-title">OpenCv</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- Image add -->
+                                                <img src="{{ ASSETS_ROOT }}/images/brightness/or.jpg" class="img-fluid"
+                                                    alt="Operation Add Manual" style="max-height: 400px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">Random</th>
+                                                    <th scope="col">Result</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.or_rand }}</td>
+                                                    <td>{{ data.rgb.or }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Xor Button -->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal" data-bs-target="#modalXor">Xor</button>
+
+                <!-- Modal fullscreen Xor -->
+                <div class="modal fade" id="modalXor" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Xor Original Image</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5 class="card-title">OpenCv</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- Image add -->
+                                                <img src="{{ ASSETS_ROOT }}/images/brightness/xor.jpg" class="img-fluid"
+                                                    alt="Operation Add Manual" style="max-height: 400px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">Random</th>
+                                                    <th scope="col">Result</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.xor_rand }}</td>
+                                                    <td>{{ data.rgb.xor }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Not Button -->
+                <button class="btn btn-primary" data-bs-toggle="modal"="modal" data-bs-target="#modalNot">Not</button>
+
+                <!-- Modal fullscreen Not -->
+                <div class="modal fade" id="modalNot" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">Not Original Image</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5 class="card-title">OpenCv</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- Image add -->
+                                                <img src="{{ ASSETS_ROOT }}/images/brightness/not.jpg" class="img-fluid"
+                                                    alt="Operation Add Manual" style="max-height: 400px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 tableFixHead" style="overflow-y: auto; height: 450px">
+                                        <p>RGB Values</p>
+                                        <table class="table align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Original</th>
+                                                    <th scope="col">Random</th>
+                                                    <th scope="col">Result</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ data.rgb.original }}</td>
+                                                    <td>{{ data.rgb.not_rand }}</td>
+                                                    <td>{{ data.rgb.not }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Image_0 vs Image_2</h5>
-                </div>
-                <div class="card-body">
-                    <img src="{{ ASSETS_ROOT }}/images/merge/lena.jpg" class="img-fluid" alt="Result Image">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Image_0 brightness_add manual</h5>
-                </div>
-                <div class="card-body">
-                    <img src="{{ ASSETS_ROOT }}/images/brightness/lena.jpg" class="img-fluid" alt="Result Image">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Image_2 brightness_add open cv</h5>
-                </div>
-                <div class="card-body">
-                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenacv.jpg" class="img-fluid" alt="Result Image">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Image_2 brightness_add manual</h5>
-                </div>
-                <div class="card-body">
-                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenacvmanual.jpg" class="img-fluid"
-                        alt="Result Image">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Image_0 brightness_sub opencv</h5>
-                </div>
-                <div class="card-body">
-                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenasubcv.jpg" class="img-fluid" alt="Result Image">
-                </div>
-            </div>
-        </div>        
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Image_0 brightness_mul manual</h5>
-                </div>
-                <div class="card-body">
-                    <img src="{{ ASSETS_ROOT }}/images/brightness/lenamul.jpg" class="img-fluid"
-                        alt="Result Image">
-                </div>
-            </div>
     </div>
 </div>
 {% endblock content %}

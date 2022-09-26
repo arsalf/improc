@@ -9,18 +9,19 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 
-from asyncio.windows_events import NULL
-from django.shortcuts import render
-from django.http import HttpResponse
-import cv2
-import numpy as np
+from apps.home.models import Image as ModelImage
+from apps.home.forms import ImageCreate
+
 from pathlib import Path
 from statistics import mean
-import matplotlib.image as mimg
-import pandas as pd
 from skimage import io
-from PIL import Image 
-import matplotlib.pylab as plt
+
+from .ImageOperation import *
+
+import cv2
+import numpy as np
+import matplotlib.image as mimg
+
 
 @login_required(login_url="/login/")
 def index(request):
@@ -44,7 +45,7 @@ def pages(request):
         context['segment'] = load_template
 
         # Load data for each template
-        context['data'] = getData(load_template)
+        context['data'] = getData(load_template, request)        
 
         html_template = loader.get_template('home/' + load_template)
         return HttpResponse(html_template.render(context, request))
@@ -54,12 +55,12 @@ def pages(request):
         html_template = loader.get_template('home/page-404.html')
         return HttpResponse(html_template.render(context, request))
 
-    except:
-        html_template = loader.get_template('home/page-500.html')
-        return HttpResponse(html_template.render(context, request))
+    # except:
+    #     html_template = loader.get_template('home/page-500.html')
+    #     return HttpResponse(html_template.render(context, request))
 
 # Core data for each template
-def getData(file_template):
+def getData(file_template, request):
     data = []
 
     # Return different data for each template names
@@ -68,112 +69,198 @@ def getData(file_template):
     elif file_template == 'pertemuan-3.html':
         data = getCropAndInvertImage()
     elif file_template == 'pertemuan-4.html':
-        data = getImgFromUrl("https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png")    
+        # Get image file from requesting
+        if request.method == 'POST':
+            data = {}
+            if request.FILES['image']:
+                upload = ImageCreate(request.POST, request.FILES)
+                fileImg = request.FILES['image']                
+                image = ModelImage.objects.create(image=fileImg, task="Pertemuan-4")
+                image.save()                
+                data['is_upload'] = True
+                # Split url to get image name
+                url = str(image.image).split('/')
+                data['image'] = url[5]              
+                data['rgb'] = getAllOperationFrom(fileImg, request)  
+                data['addition'] = request.POST['addition']
+                data['substraction'] = request.POST['substraction']
+                data['multiplication'] = request.POST['multiplication']
+                data['division'] = request.POST['division']
+        else:
+            data = {}
+            data['rgb'] = getAllOperationFromDefault("https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png")
+            data['is_upload'] = False
     
     return data
 
-def getImgFromUrl(url):    
-    save_path_to = str(Path(__file__).resolve().parent.parent) + \
-        '\\static\\assets\\images\\merge\\'
-    image_0 = io.imread(url) # read image use skimage
-    image_2 = cv2.cvtColor(image_0, cv2.COLOR_BGR2RGB) #convert bgr to rgb
-    final_frame = cv2.hconcat((image_0, image_2)) # merge image
-    status = cv2.imwrite(save_path_to+"lena.jpg", final_frame)
-
-    # add brightness_add
-    image_1 = brightness_add(image_0)
+def getAllOperationFromDefault(url):    
     save_path_to = str(Path(__file__).resolve().parent.parent) + \
         '\\static\\assets\\images\\brightness\\'
-    image_1.save(save_path_to+"lena.jpg")    
+    data = {}
+    
+    rgb_img = io.imread(url) # read image using skimage
+    bgr_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR) # convert to bgr color    
 
-    # add brightness_addcv    
-    image_3 = brightness_addcv(image_2)
-    status = cv2.imwrite(save_path_to+"lenacv.jpg", image_3)
+    data['original'] = rgb_img
+    
+    # Operation add
+    add_img = rgb_add_np(rgb_img)
+    add_img_cv = rgb_add_cv(bgr_img)
+    data['add_np'] = add_img
+    data['add_cv'] = add_img_cv
 
-    # add brightness_addcv
-    image_4 = brightness_add(image_2)    
-    image_4.save(save_path_to+"lenacvmanual.jpg")    
+    # Save image
+    Image.fromarray(add_img).save(save_path_to+"add_np.jpg")    
+    cv2.imwrite(save_path_to+'add_cv.jpg', add_img_cv)    
 
-    # add brightness_subtraction
-    image_5 = brightness_subtraction(image_2)
-    image_5 = Image.fromarray(image_5)
-    image_5.save(save_path_to+"lenasub.jpg")
+    # Operation substract  
+    sub_img = rgb_substraction_np(rgb_img)
+    sub_img_cv = rgb_substraction_cv(bgr_img)
+    data['sub_np'] = sub_img
+    data['sub_cv'] = sub_img_cv
 
-    # add brightness_subtractioncv
-    image_6 = brightness_subtractioncv(image_0)
-    status = cv2.imwrite(save_path_to+"lenasubcv.jpg", image_6)    
+    # Save image
+    Image.fromarray(sub_img).save(save_path_to+"sub_np.jpg")    
+    cv2.imwrite(save_path_to+'sub_cv.jpg', sub_img_cv)
 
-    # add brightness_multiplication
-    image_7 = brightness_multiplication(image_0)
-    image_7.save(save_path_to+"lenamul.jpg")
+    # Operation multiplication
+    mul_img = rgb_multiplication_np(rgb_img)
+    mul_img_cv = rgb_multiplication_cv(bgr_img)
+    data['mul_np'] = mul_img
+    data['mul_cv'] = mul_img_cv
 
-    return status
+    # Save image
+    Image.fromarray(mul_img).save(save_path_to+"mul_np.jpg")    
+    cv2.imwrite(save_path_to+'mul_cv.jpg', mul_img_cv)    
 
-def brightness_subtraction(image):
-    image = image.astype('uint16')
-    image = image-100
-    image = np.clip(image, 0, 255)
-    image = image.astype('uint8')
-    return image
+    # Operation division
+    div_img = rgb_division_np(rgb_img)
+    div_img_cv = rgb_division_cv(bgr_img)
+    data['div_np'] = div_img
+    data['div_cv'] = div_img_cv
 
-def brightness_subtractioncv(image):
-    new_image = cv2.subtract(image, 100)
-    new_image = np.clip(new_image, 0, 255)
-    return new_image
+    # Save image
+    Image.fromarray(div_img).save(save_path_to+"div_np.jpg")    
+    cv2.imwrite(save_path_to+'div_cv.jpg', div_img_cv)    
 
-def brightness_multiplication(image):
-    image = np.asarray(image).astype('uint16')
-    image = image*1.25
-    image = np.clip(image, 0, 255)
-    new_image = image.astype('uint8')
-    new_image = Image.fromarray(new_image)
-    return new_image
+    # Operation bitwise and
+    and_img = bitwise_and(bgr_img)
 
-def brightness_multiplicationcv(image):
-    new_image = cv2.multiply(image, 1.25)
-    new_image= np.clip(new_image, 0, 255)
-    return new_image
+    # Save image
+    cv2.imwrite(save_path_to+'and.jpg', and_img[0])
+    data['and'] = and_img[0]
+    data['and_rand'] = and_img[1]
 
-def brightness_dividecv(image):
-    new_image = cv2.divide(image, 2)
-    new_image= np.clip(new_image, 0, 255)
-    return new_image
 
-def brightness_divide(image):
-    image = np.asarray(image).astype('uint16')
-    image = image/2
-    image = np.clip(image, 0, 255)
-    new_image = image.astype('uint8')
-    #new_image = Image.fromarray(new_image)
-    return new_image
+    # Operation bitwise or
+    or_img = bitwise_or(bgr_img)
 
-def bitwise_and(image):
-    bit_and = cv2.bitwise_and(image, image)
-    return bit_and
+    # Save image
+    cv2.imwrite(save_path_to+'or.jpg', or_img[0])
+    data['or'] = or_img[0]
+    data['or_rand'] = or_img[1]
 
-def bitwise_or(image):
-    bit_or = cv2.bitwise_or(image, image)
-    return bit_or
+    # Operation bitwise xor
+    xor_img = bitwise_xor(bgr_img)
 
-def bitwise_not(image):
-    bit_not = cv2.bitwise_not(image)
-    return bit_not
+    # Save image
+    cv2.imwrite(save_path_to+'xor.jpg', xor_img[0])
+    data['xor'] = xor_img[0]
+    data['xor_rand'] = xor_img[1]
 
-def bitwise_xor(image):
-    bit_xor = cv2.bitwise_xor(image, image)
-    return bit_xor
+    # Operation bitwise not
+    not_img = bitwise_not(bgr_img)
 
-def brightness_add(image):
-    image = np.asarray(image).astype('uint16')
-    image = image+100
-    image = np.clip(image, 0, 255)
-    new_image = image.astype('uint8')
-    new_image = Image.fromarray(new_image)
-    return new_image
+    # Save image
+    cv2.imwrite(save_path_to+'not.jpg', not_img[0])
+    data['not'] = not_img[0]
+    data['not_rand'] = not_img[1]
+    
+    return data
 
-def brightness_addcv(image):
-    new_image = cv2.add(image, 100)
-    return new_image
+def getAllOperationFrom(url, request):    
+    save_path_to = str(Path(__file__).resolve().parent.parent) + \
+        '\\static\\assets\\images\\brightness\\'
+    data  = {}
+
+    rgb_img = io.imread(url) # read image using skimage
+    bgr_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR) # convert to bgr color    
+
+    data['original'] = rgb_img
+   
+    # Operation add
+    add_img = rgb_add_np(rgb_img, int(request.POST['addition']))
+    add_img_cv = rgb_add_cv(bgr_img, int(request.POST['addition']))
+    data['add_np'] = add_img
+    data['add_cv'] = add_img_cv
+
+    # Save image
+    Image.fromarray(add_img).save(save_path_to + 'add_np.jpg')
+    cv2.imwrite(save_path_to+'add_cv.jpg', add_img_cv)    
+
+    # Operation substract  
+    sub_img = rgb_substraction_np(rgb_img, int(request.POST['substraction']))
+    sub_img_cv = rgb_substraction_cv(bgr_img, int(request.POST['substraction']))
+    data['sub_np'] = sub_img
+    data['sub_cv'] = sub_img_cv    
+
+    # Save image
+    Image.fromarray(sub_img).save(save_path_to + 'sub_np.jpg')    
+    cv2.imwrite(save_path_to+'sub_cv.jpg', sub_img_cv)    
+
+    # Operation multiplication
+    mul_img = rgb_multiplication_np(rgb_img, int(request.POST['multiplication']))
+    mul_img_cv = rgb_multiplication_cv(bgr_img, int(request.POST['multiplication']))
+    data['mul_np'] = mul_img
+    data['mul_cv'] = mul_img_cv    
+
+    # Save image
+    Image.fromarray(mul_img).save(save_path_to + 'mul_np.jpg')
+    cv2.imwrite(save_path_to+'mul_cv.jpg', mul_img_cv)    
+
+    # Operation division
+    div_img = rgb_division_np(rgb_img, int(request.POST['division']))
+    div_img_cv = rgb_division_cv(bgr_img, int(request.POST['division']))
+    data['div_np'] = div_img
+    data['div_cv'] = div_img_cv
+
+    # Save image
+    Image.fromarray(div_img).save(save_path_to + 'div_np.jpg')
+    cv2.imwrite(save_path_to+'div_cv.jpg', div_img_cv)    
+
+    # Operation bitwise and
+    and_img = bitwise_and(bgr_img)
+
+    # Save image
+    cv2.imwrite(save_path_to+'and.jpg', and_img[0])
+    data['and'] = and_img[0]
+    data['and_rand'] = and_img[1]
+
+    # Operation bitwise or
+    or_img = bitwise_or(bgr_img)
+
+    # Save image
+    cv2.imwrite(save_path_to+'or.jpg', or_img[0])
+    data['or'] = or_img[0]
+    data['or_rand'] = or_img[1]
+
+    # Operation bitwise xor
+    xor_img = bitwise_xor(bgr_img)
+
+    # Save image
+    cv2.imwrite(save_path_to+'xor.jpg', xor_img[0])
+    data['xor'] = xor_img[0]
+    data['xor_rand'] = xor_img[1]
+
+    # Operation bitwise not
+    not_img = bitwise_not(bgr_img)
+
+    # Save image
+    cv2.imwrite(save_path_to+'not.jpg', not_img[0])
+    data['not'] = not_img[0]
+    data['not_rand'] = not_img[1]
+    
+    return data
 
 def getCropAndInvertImage():
     status = getCropImage()
@@ -278,8 +365,6 @@ def getGrayImgManual(file_name):
 
     # new Image dimension with 4 attribute in each pixel
     newImage = np.zeros([w, h, 3])
-    print(w)
-    print(h)
 
     for i in range(w):
         for j in range(h):
@@ -290,7 +375,7 @@ def getGrayImgManual(file_name):
             newImage[i][j][1] = avg
             newImage[i][j][2] = avg
             # newImage[i][j][3] = 1 # alpha value to be 1
-    print(newImage)
+    
     # Save image using imsave
     status = cv2.imwrite(save_path_to, newImage)
 
